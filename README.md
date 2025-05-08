@@ -2,7 +2,7 @@
 
 This is a summary of ETH Zurich’s *Programming Techniques for Scientific Simulations I* course.
 
-Originally based on notes by [Mattia Luca](https://tia987.gitlab.io/astro/blog/09-jan-24/), this version includes significant restructuring, additional explanations, and enhancements for clarity and completeness.
+Originally based on notes by [Mattia Luca](https://tia987.gitlab.io/astro/blog/09-jan-24/)
 
 ## Contents
 
