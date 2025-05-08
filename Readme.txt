@@ -6,13 +6,13 @@ Originally based on notes by [Mattia Luca](https://tia987.gitlab.io/astro/blog/0
 
 ## Contents
 
-- Git & version control
-- C++ fundamentals, classes, and templates
-- Compilation, linking, CMake, and Makefiles
-- Optimization techniques (loop unrolling, metaprogramming, etc.)
-- Python basics and plotting
-- Algorithms, STL containers, data structures
-- Exception handling and testing
+- Git & version control  
+- C++ fundamentals, classes, and templates  
+- Compilation, linking, CMake, and Makefiles  
+- Optimization techniques (loop unrolling, metaprogramming, etc.)  
+- Python basics and plotting  
+- Algorithms, STL containers, data structures  
+- Exception handling and testing  
 - Hardware-level considerations (caching, pipelining)
 
 ## License
