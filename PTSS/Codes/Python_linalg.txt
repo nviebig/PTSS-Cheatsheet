@@ -1,0 +1,30 @@
+def main(K=1.0, m=1.0, N=4):
+    # Set up H (only upper triangle).
+    H = 2 * np.eye(N) - np.eye(N, k=1)
+    # Compute eigenvalues and eigenvectors.
+    eigval, eigvec = np.linalg.eigh(H, UPLO='U')
+    print("EW ", eigval)
+    # Compute frequencies from eigenvalues.
+    omega = np.sqrt(K / m * eigval)
+    # Exact frequencies.
+    exact_omega = np.sqrt(
+        K / m * (2 - 2 * np.cos(np.pi * np.arange(1, N + 1) / (N + 1))))
+    # Print a preview of the results to screen.
+    eigvec = np.transpose(eigvec)  # We want to print eigenvectors on rows.
+    np.set_printoptions(threshold=100)
+    print("\nHamiltonian (upper triangle):", H, 
+          "\nEigenfrequencies omega:", omega,
+          "\nEigenvectors:", eigvec,
+          sep='\n',
+          end='\n\n')
+    # Print the full results to a file.
+    np.savetxt("results_py.data",
+                np.c_[exact_omega, omega, eigvec],
+                header="exact_omega  omega  eigenvector",
+                fmt=str('%.15g'))
+    # Save in HDF5 format.
+    with h5py.File('results_py.h5', 'w') as f:
+        f['eigenvectors'] = eigvec
+        f['omega'] = omega
+        f['exact_omega'] = exact_omega
+if __name__ == "__main__": main()

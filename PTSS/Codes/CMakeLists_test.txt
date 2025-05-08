@@ -1,0 +1,33 @@
+# Specify the minimum required CMake version
+cmake_minimum_required(VERSION 3.5)
+
+# Set the project name
+project("PennaSim")
+
+# Include directories for source files
+include_directories("${CMAKE_SOURCE_DIR}/src")
+# Set C++ standards
+# ...
+# Add subdirectories for each source directory
+# important so that CMakes are executed
+set(DIRECTORIES src)
+foreach(directory ${DIRECTORIES})
+  add_subdirectory(${directory})
+endforeach(directory)
+
+# Enable tests if the TESTS option is on
+set(TESTS ON)
+if (TESTS)
+  # Add the 'test' subdirectory and enable testing
+  add_subdirectory(test)
+  enable_testing()
+endif ()
+
+# Create the executable named 'penna' from main.cc
+add_executable(penna main.cc)
+
+# Link the executable with the 'libs' library
+target_link_libraries(penna libs)
+
+# Set compiler options for warnings
+add_compile_options(-Wall -Wextra)

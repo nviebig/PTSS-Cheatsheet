@@ -1,0 +1,16 @@
+# Object code depending on header and implementation
+simpson.o: simpson.cpp simpson.hpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+# Create a library from the object code
+libs/libsimpson.a: simpson.o
+	ar rvs $@ $^
+
+# Build the main program
+main: main.o libs/libsimpson.a
+	${CXX} ${CXXSTD} ${CXXFLAGS} -o $@ $< -Llibs -lsimpson && rm *.o
+
+# Clean up generated files
+.PHONY: clean
+clean:
+	rm -f *.o *.a main

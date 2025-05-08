@@ -1,0 +1,10 @@
+import numpy as np
+import matplotlib.pyplot as plt
+data = np.loadtxt('output.txt')
+x = data[:, 0]  # All rows, column 0
+y = data[:, 1]  # All rows, column
+plt.plot(x, y, label='Data from output.txt')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.legend()
+plt.show()

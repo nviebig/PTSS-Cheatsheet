@@ -1,0 +1,85 @@
+# Use g++ as the default compiler if CXX is not defined
+CXX ?= g++
+
+# Specify the C++ standard to use; default is C++11
+CXXSTD ?= -std=c++11
+
+# Default compiler flags
+# -Wall: Enable all warnings
+# -O2: Optimization level 2
+# -fPIC: Generate position-independent code (useful for shared libraries)
+CXXFLAGS ?= -Wall -O2 -fPIC
+
+# Include paths for the compiler
+# Current directory, /usr/local/bin, and /opt/local/include are default
+CXXINCLUDES ?= -I. -I/usr/local/bin -I/opt/local/include
+
+# Library search paths
+# Look for libraries in /usr/local/lib and /opt/local/lib by default
+CXXLIBS ?= -L/usr/local/lib -L/opt/local/lib
+
+# Headers that will trigger a rebuild if changed
+# Modify this path to include your actual header files
+CXXHEADERS ?= /path/to/frail/header/likely/to/change.hpp
+
+# Default installation prefix for binaries, libraries, and headers
+INSTALLPREFIX ?= /usr/local
+
+# Compile command template (uses variables above)
+compile := $(CXX) $(CXXSTD) $(CXXFLAGS) $(CXXINCLUDES)
+
+# Debugging: Print variable values
+# This loops through varsToPrint and prints each variable's value
+varsToPrint := CXX CXXSTD CXXFLAGS CXXINCLUDES CXXLIBS CXXHEADERS
+$(foreach var,$(varsToPrint),$(info $(var) = $($(var))))
+
+# Default target: If no target is specified, "data" is built
+.PHONY: all
+all: data
+
+# Generate data using the "simulation" binary
+data: simulation
+	./simulation > data
+
+# Build the simulation binary
+# Dependencies: libintegrate.a, libdynamic.so, simulation.o
+simulation: libintegrate.a libdynamic.so simulation.o
+	$(compile) simulation.o $(CXXLIBS) -ldynamic -lintegrate -o $@
+
+# Build a static library (libintegrate.a) from integrate.o
+libintegrate.a: integrate.o
+	ar ruc $@ $<    # Create the archive
+	ranlib $@       # Index the archive
+
+# Build a dynamic library (libdynamic.so) from dynamic.o
+libdynamic.so: dynamic.o
+	$(compile) -shared -o $@ $<
+
+# Generic rule to build any object file (%.o) from its source (%.cpp)
+# The object file depends on the source file and the headers
+%.o: %.cpp $(CXXHEADERS)
+	$(compile) -c $< -o $@
+
+# Clean up generated files
+# The ".PHONY" line ensures "clean" always runs, even if there is a file named "clean"
+.PHONY: clean
+clean:
+	rm -f *.o *.a *.so simulation data
+
+# Installation paths for binaries, libraries, and headers
+bindir := $(INSTALLPREFIX)/bin
+libdir := $(INSTALLPREFIX)/lib
+incldir := $(INSTALLPREFIX)/include
+
+# Flags for the "install" command
+installflags := --compare --backup=existing --suffix=.bak
+
+# Install the binaries, libraries, and headers
+install: simulation
+	install --directory $(bindir) $(incldir) $(libdir)  # Ensure directories exist
+	install $(installflags) --strip simulation $(bindir)  # Install simulation binary
+	install $(installflags) libintegrate.a libdynamic.so $(libdir)  # Install libraries
+	install $(installflags) $(CXXHEADERS) $(incldir)  # Install header files
+
+# Prevent built-in suffix rules from interfering
+.SUFFIXES:

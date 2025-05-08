@@ -1,0 +1,82 @@
+// SIMPSON_HPP
+// Define typename types for normal case
+template <class F> struct domain_t { using type = typename F::input_t; };
+template <class F> struct result_t { using type = typename F::output_t; };
+// Define typename types for static_cast<double (*) (double)> with function pointers
+template <class R, class T> struct domain_t<R(*)(T)> { using type = T; };
+template <class R, class T> struct result_t<R(*)(T)> { using type = R; };
+
+template <class F>
+typename result_t<F>::type integrate(const typename domain_t<F>::type a, 
+const typename domain_t<F>::type b, 
+const unsigned bins, 
+const F& func)
+{
+    // Use the type from domain_t as F::input_t
+    using D = typename domain_t<F>::type;
+    const D dr = (b - a) / (2.*bins);
+    typename result_t<F>::type I2(0), I4(0);
+    D pos = a;
+  
+    for(unsigned int i = 0; i < bins; ++i) {
+        pos += dr;
+        I4 += func(pos);
+        pos += dr;
+        I2 += func(pos);
+    }
+
+    return (func(a) + 2.*I2 + 4.*I4 - func(b)) * (dr/3.);
+}
+
+// MAIN_CPP
+// Function object with defined output type and input type
+template <class T, class V>
+struct exp_minus_lambda_x {
+    using output_t = T;
+    using input_t = V;
+
+    exp_minus_lambda_x(const output_t lambda_value=1.0) : lambda(lambda_value) {}
+    output_t operator()(const input_t x) const { return std::exp(-lambda*x); }
+
+    const output_t lambda;
+};
+
+
+// Function object without definitions of output type and input type
+struct sin_lambda_x {
+    sin_lambda_x(const double lambda_value=1.0) : lambda(lambda_value) {}
+    double operator()(const double x) const { return std::sin(lambda*x); }
+
+    const double lambda;
+};
+
+// We need to provide specialization on the traits for the sin_lambda_x as it
+// does not have defined input_t and output_t.
+template <> struct domain_t<sin_lambda_x> { using type = double;};
+template <> struct result_t<sin_lambda_x> { using type = double;};
+
+
+std::complex<double> complex_exp(std::complex<double> x) { return std::exp(x); }
+
+
+int main() {
+    // ...
+    // Function pointer with real domain and range
+    std::cout << integrate(0., 1., bins, static_cast<double (*) (double)>(std::exp))
+
+    // Function pointer with complex domain and range
+    std::cout << integrate(std::complex<double>(0),
+                           std::complex<double>(0, M_PI),
+                           bins,
+                           &complex_exp)
+
+    // Function object with real domain and range, both defined in the class
+    exp_minus_lambda_x<double,double> exp_real_x(2.2);
+    std::cout << integrate(0., 1., bins, exp_real_x)
+
+    // Function object with real domain and range, which is not defined in the class
+    sin_lambda_x sin_kx(2);
+    std::cout << integrate(0., M_PI/sin_kx.lambda, bins, sin_kx)
+
+    return 0;
+}

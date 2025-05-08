@@ -1,0 +1,68 @@
+import numpy as np
+import scipy.stats as st
+import scipy.linalg as la
+import matplotlib.pyplot as plt
+# Read data from the file
+data = np.loadtxt('results.txt')
+# Define functions
+def get_samples(n=500):
+    return np.random.rand(n, 2) * 2 - 1
+def get_r(samples):
+    return la.norm(samples, axis=1)
+def calculate_pi(samples):
+    num_inside = np.sum(get_r(samples) < 1.) 
+    num_total = len(samples)
+    return 4 * num_inside / num_total
+def create_scatter_plot(samples):
+    fig, ax = plt.subplots()
+    ax.set_aspect('equal')
+    ax.set_xticks([-1, 0, 1])
+    ax.set_xlabel(r'$x$')
+    ax.set_title('Points used to calculate Pi')
+    x, y = samples.T
+    ax.scatter(x, y, c=get_r(samples) < 1., cmap='bwr')
+    phi = np.linspace(0, 2 * np.pi, 200)
+    ax.plot(np.cos(phi), np.sin(phi), 'k')
+    fig.savefig('scatter_plot.pdf', bbox_inches='tight')
+def create_contour_plot(samples):
+    # Create a Gaussian kernel density estimation (KDE) object
+    # `samples.T` ensures the data has shape (dimensions, num_points)
+    # `bw_method=0.2` sets the bandwidth for smoothing the KDE
+    density_func = st.gaussian_kde(samples.T, bw_method=0.2)
+    # Generate a 2D grid of points in the range [-1.1, 1.1] for both x and y
+    # `200j` specifies 200 equally spaced points in each dimension
+    X, Y = np.mgrid[-1.1:1.1:200j, -1.1:1.1:200j]
+    # Flatten the grid into a 2D array of positions
+    # Each column corresponds to a point in the 2D space
+    positions = np.stack([X.flat, Y.flat])
+    # Evaluate the KDE at each point in the grid
+    # Reshape the result back into the shape of the grid (200x200)
+    Z = np.reshape(density_func(positions), X.shape)
+    # Create a new figure and axis for the plot
+    fig, ax = plt.subplots()
+    # Set the aspect ratio of the plot to be equal, so x and y scales match
+    ax.set_aspect('equal')
+    # Customize the x-axis ticks
+    ax.set_xticks([-1, 0, 1])
+    # Set the x-axis label, using LaTeX formatting for better style
+    ax.set_xlabel(r'$x$')
+    # Set the title of the plot
+    ax.set_title('Interpolated Point Density')
+    # Create a filled contour plot for the density values (heatmap)
+    heatmap = ax.contourf(X, Y, Z)
+    # Overlay contour lines on top of the heatmap
+    # `linewidths=0.3` sets the thickness of the lines
+    # `colors='k'` sets the lines to be black
+    ax.contour(X, Y, Z, linewidths=0.3, colors='k')
+    # Add a colorbar to the plot to indicate the density values
+    fig.colorbar(heatmap)
+    # Save the plot as a PDF file with tight bounding box
+    fig.savefig('contour_plot.pdf', bbox_inches='tight')
+def main():
+    np.random.seed(42)
+    samples = get_samples()
+    pi_estimate = calculate_pi(samples) 
+    print('Pi ~= {}'.format(pi_estimate))
+    create_scatter_plot(samples)
+    create_contour_plot(samples)
+if __name__ == '__main__': main()

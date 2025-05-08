@@ -1,0 +1,11 @@
+#include <iostream> 
+#include <stdexcept>
+void test_default_constructor() { 
+    Genome genome;
+    for (std::size_t age=0; age < Genome::number_of_genes; ++age) { if (genome.count_bad(age) != 0 ) {
+        throw std::logic_error("Default initialized Genome is not all zero."); }}}
+int main() {
+    // Seed the random number generator.
+    srand(42); // Run tests.
+    test_default_constructor();
+    return 0; }

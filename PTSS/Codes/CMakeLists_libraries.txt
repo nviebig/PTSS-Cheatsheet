@@ -1,0 +1,4 @@
+# Create a static library named 'libs' from genome.cc and animal.cc
+add_library(libs STATIC genome.cc animal.cc)
+# Insert to avoid writing name folders in "include hearder"
+target_include_directories(libs PUBLIC .) 

@@ -1,0 +1,17 @@
+# Enable testing
+enable_testing()
+# Include directories for the project source files
+include_directories(${PROJECT_SOURCE_DIR}/src)
+# Executable for testing the default constructor of the 'genome' component
+add_executable(genome_test_default_ctor genome_test_default_ctor.cpp)
+# Link the executable with the 'penna' library
+target_link_libraries(genome_test_default_ctor penna)
+# Add a test for the default constructor
+add_test(NAME Genome-Default-Constructor COMMAND genome_test_default_ctor)
+
+# Executable for testing the copy constructor of the 'genome' component
+add_executable(genome_test_copy_ctor genome_test_copy_ctor.cpp)
+# Link the executable with the 'penna' library
+target_link_libraries(genome_test_copy_ctor penna)
+# Add a test for the copy constructor
+add_test(NAME Genome-Copy-Constructor COMMAND genome_test_copy_ctor)

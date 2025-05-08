@@ -1,0 +1,16 @@
+class Genome(object):
+    gene_size = 64 # Class variable shared by all instances.
+    def __init__(self, genome=None):
+        if genome is None:
+            self.genes = np.zeros(self.__class__.gene_size, dtype=bool)
+        else:
+            self.genes = copy.deepcopy(genome.genes)
+    def mutate(self):
+        for _ in range(self.__class__.mutation_rate):
+            self._flip(random.randint(0, self.__class__.gene_size - 1))
+    def _flip(self, idx):
+        self.genes[idx] = not self.genes[idx]
+    def num_bad(self, age):
+        return sum(self.genes[:age])
+genome = Genome(genome) # Call the class
+genome.mutate() # Call a function

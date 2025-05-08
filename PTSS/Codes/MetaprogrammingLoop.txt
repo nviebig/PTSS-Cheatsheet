@@ -1,0 +1,47 @@
+#include <iostream>
+// TinyVector class definition for demonstration purposes
+template<typename T, int N>
+struct TinyVector {
+    T data[N]; // Fixed-size array
+    // Access operator
+    T& operator[](int index) {
+        return data[index];
+    }
+    const T& operator[](int index) const {
+        return data[index];
+    }
+};
+// Recursive template to compute the dot product of two TinyVector objects
+template<int I>
+struct meta_dot {
+    // Recursive function to compute dot product for index I
+    template<typename T, int N>
+    static T f(TinyVector<T, N>& a, TinyVector<T, N>& b) {
+        // Compute the product at index I and recurse for I-1
+        return a[I] * b[I] + meta_dot<I - 1>::f(a, b);
+    }
+};
+// Base case of the recursion (termination)
+template<>
+struct meta_dot<0> {
+    // Compute the dot product for the first element (index 0)
+    template<typename T, int N>
+    static T f(TinyVector<T, N>& a, TinyVector<T, N>& b) {
+        return a[0] * b[0];
+    }
+};
+// Wrapper function to invoke the metaprogram for the entire vector
+template<typename T, int N>
+inline T dot(TinyVector<T, N>& a, TinyVector<T, N>& b) {
+    // Start recursion with the last index (N-1)
+    return meta_dot<N - 1>::f(a, b);
+}
+int main() {
+    // Define two TinyVector objects with 3 elements
+    TinyVector<double, 3> a = {{1.0, 2.0, 3.0}};
+    TinyVector<double, 3> b = {{4.0, 5.0, 6.0}};
+    // Compute the dot product using the metaprogram
+    double result = dot(a, b);
+    // Print the result
+    std::cout << "Dot product: " << result << std::endl;
+    return 0;}
